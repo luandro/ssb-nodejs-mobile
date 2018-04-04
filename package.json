@@ -1,0 +1,28 @@
+{
+  "name": "ssb-nodejs-mobile",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "build": "./tools/build-nodejs",
+    "clean": "adb uninstall com.scuttlebotmobile && cd android && ./gradlew clean",
+    "dev": "npm run clean && npm run build && react-native run-android",
+    "push": "git push --tags ssb master && git push origin master",
+    "test": "jest"
+  },
+  "dependencies": {
+    "nodejs-mobile-react-native": "^0.1.4",
+    "noderify": "^3.0.2",
+    "react": "^16.3.0-alpha.0",
+    "react-native": "0.55.0"
+  },
+  "devDependencies": {
+    "babel-jest": "22.4.3",
+    "babel-preset-react-native": "4.0.0",
+    "jest": "22.4.3",
+    "react-test-renderer": "^16.3.0-alpha.0"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
