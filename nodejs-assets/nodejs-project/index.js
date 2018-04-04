@@ -1,9 +1,24 @@
-const rn_bridge = require('rn-bridge');
+const rn_bridge = require('rn-bridge')
+const ssbKeys = require('ssb-keys')
+const fs = require('fs')
+const os = require('os')
+const path = require('path')
+const mkdirp = require('mkdirp')
+const manifest = require('./manifest')
 
-// Echo every message received from react-native.
+const ssbPath = path.resolve(os.homedir(), '.ssb');
+if (!fs.existsSync(ssbPath)) {
+  mkdirp.sync(ssbPath);
+}
+const keys = ssbKeys.loadOrCreateSync(path.join(ssbPath, '/secret'));
+
+const config = require('ssb-config/inject')();
+config.path = ssbPath;
+config.keys = keys;
+config.manifest = manifest;
+
 rn_bridge.channel.on('message', (msg) => {
-  rn_bridge.channel.send(msg);
-} );
+  rn_bridge.channel.send(config)
+})
 
-// Inform react-native node is initialized.
-rn_bridge.channel.send("Node was initialized.");
+rn_bridge.channel.send("Node was initialized.")

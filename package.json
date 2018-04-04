@@ -5,8 +5,10 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "build": "./tools/build-nodejs",
+    "node": "cd nodejs-assets/nodejs-project && node .",
     "clean": "adb uninstall com.scuttlebotmobile && cd android && ./gradlew clean",
-    "dev": "npm run clean && npm run build && react-native run-android",
+    "log": "adb logcat -s 'NODEJS-MOBILE'",
+    "dev": "npm run clean && react-native run-android && npm run log",
     "push": "git push --tags ssb master && git push origin master",
     "test": "jest"
   },

@@ -6,5 +6,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "mkdirp": "^0.5.1",
+    "ssb-config": "^2.2.0",
+    "ssb-keys": "^7.0.14"
+  }
 }
