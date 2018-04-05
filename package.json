@@ -8,7 +8,7 @@
     "node": "cd nodejs-assets/nodejs-project && node .",
     "clean": "adb uninstall com.scuttlebotmobile && cd android && ./gradlew clean",
     "log": "adb logcat -s 'NODEJS-MOBILE'",
-    "dev": "npm run clean && react-native run-android && npm run log",
+    "dev": "react-native run-android && npm run log",
     "push": "git push --tags ssb master && git push origin master",
     "test": "jest"
   },

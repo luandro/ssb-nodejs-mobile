@@ -8,6 +8,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.3",
+    "leveldown": "^3.0.0",
     "mkdirp": "^0.5.1",
     "ssb-config": "^2.2.0",
     "ssb-keys": "^7.0.14"

@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# echo "Installing dependencies...";
-# cd ./nodejs-assets/nodejs-project && npm i && cd ../..;
+echo "Setting up folder for native bindings...";
 
-# echo "Setting up folder for native bindings...";
-# mv ./nodejs-assets/nodejs-project/node_modules/leveldown-android-prebuilt/compiled ./nodejs-assets/nodejs-project/compiled;
+echo "Preparing leveldown"
+rm ./nodejs-assets/nodejs-project/node_modules/leveldown/build/Release/leveldown.node
+cp tools/leveldown.node ./nodejs-assets/nodejs-project/node_modules/leveldown/build/Release/
 
-echo "Minifying...";
-$(npm bin)/noderify \
-  --replace.chloride=sodium-browserify-tweetnacl \
-  --replace.sodium-chloride=sodium-browserify-tweetnacl \
-  ./nodejs-assets/nodejs-project/index.js > ./nodejs-assets/nodejs-project/compiled_index.js;
+# echo "Minifying...";
+# $(npm bin)/noderify \
+#   --replace.chloride=sodium-browserify-tweetnacl \
+#   --replace.sodium-chloride=sodium-browserify-tweetnacl \
+#   ./nodejs-assets/nodejs-project/index.js > ./nodejs-assets/nodejs-project/compiled_index.js;
 
 echo "Done."

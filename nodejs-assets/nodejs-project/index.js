@@ -5,6 +5,9 @@ const os = require('os')
 const path = require('path')
 const mkdirp = require('mkdirp')
 const manifest = require('./manifest')
+const level = require('leveldown')
+
+console.log('LEVEL', level)
 
 const app = express()
 
