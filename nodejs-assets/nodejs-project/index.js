@@ -6,7 +6,11 @@ const path = require('path')
 const mkdirp = require('mkdirp')
 const manifest = require('./manifest')
 
-const ssbPath = path.resolve(os.homedir(), '.ssb');
+// Hack until appDataDir plugin comes out
+const  writablePath = path.join(__dirname, '..');
+// const ssbPath = path.resolve(os.homedir(), '.ssb');
+const ssbPath = path.resolve(writablePath, '.ssb');
+
 if (!fs.existsSync(ssbPath)) {
   mkdirp.sync(ssbPath);
 }
@@ -18,7 +22,12 @@ config.keys = keys;
 config.manifest = manifest;
 
 rn_bridge.channel.on('message', (msg) => {
-  rn_bridge.channel.send(config)
+  if( msg === 'keys') {
+    rn_bridge.channel.send(config.keys)
+  }
+  if( msg === 'path') {
+    rn_bridge.channel.send(config.path)
+  }
 })
 
 rn_bridge.channel.send("Node was initialized.")

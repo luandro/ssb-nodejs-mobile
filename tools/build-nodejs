@@ -1,17 +1,17 @@
 #!/bin/bash
 
-echo "Installing dependencies...";
-cd ./nodejs-assets/nodejs-project && npm i && cd ../..;
+# echo "Installing dependencies...";
+# cd ./nodejs-assets/nodejs-project && npm i && cd ../..;
 
 echo "Setting up folder for native bindings...";
-mv ./nodejs-assets/nodejs-project/node_modules/leveldown-android-prebuilt/compiled ./rnnodeapp/compiled;
+mv ./nodejs-assets/nodejs-project/node_modules/leveldown-android-prebuilt/compiled ./nodejs-assets/nodejs-project/compiled;
 
-echo "Minifying...";
-$(npm bin)/noderify \
-  --replace.chloride=sodium-browserify-tweetnacl \
-  --replace.sodium-chloride=sodium-browserify-tweetnacl \
-  --replace.node-extend=xtend \
-  --replace.leveldown=leveldown-android-prebuilt \
-  ./nodejs-assets/nodejs-project/index.js > ./nodejs-assets/nodejs-project/compiled_index.js;
+# echo "Minifying...";
+# $(npm bin)/noderify \
+#   --replace.chloride=sodium-browserify-tweetnacl \
+#   --replace.sodium-chloride=sodium-browserify-tweetnacl \
+#   --replace.node-extend=xtend \
+#   --replace.leveldown=leveldown-android-prebuilt \
+#   ./nodejs-assets/nodejs-project/index.js > ./nodejs-assets/nodejs-project/compiled_index.js;
 
-echo "Done."
+# echo "Done."

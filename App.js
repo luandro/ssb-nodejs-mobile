@@ -37,8 +37,11 @@ export default class App extends Component<Props> {
         <Text style={styles.welcome}>
           Welcome to Scuttlebot on NodeJS Mobile!
         </Text>
-        <Button title="Message Node"
-          onPress={() => nodejs.channel.send('A message!')}
+        <Button title="Keys"
+          onPress={() => nodejs.channel.send('keys')}
+        />
+        <Button title="Path"
+          onPress={() => nodejs.channel.send('path')}
         />
       </View>
     );
