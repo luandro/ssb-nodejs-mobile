@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import nodejs from 'nodejs-mobile-react-native';
 
+const uri = 'http://localhost:4000'
+
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
     'Cmd+D or shake for dev menu',
@@ -21,15 +23,17 @@ const instructions = Platform.select({
 
 type Props = {};
 export default class App extends Component<Props> {
+  state = {
+    msg: null
+  }
   componentWillMount() {
-    nodejs.start('index.js');
-    nodejs.channel.addListener(
-      'message',
-      (msg) => {
-        alert('From node: ' + msg);
-      },
-      this 
-    );
+    nodejs.start('compiled_index.js');
+  }
+  get = (i) => {
+    fetch(`${uri}/${i}`)
+      .then(res => res.json())
+      .then(data => this.setState({ msg: data }))
+      .catch(err => alert(err))
   }
   render() {
     return (
@@ -38,11 +42,12 @@ export default class App extends Component<Props> {
           Welcome to Scuttlebot on NodeJS Mobile!
         </Text>
         <Button title="Keys"
-          onPress={() => nodejs.channel.send('keys')}
+          onPress={() => this.get('keys')}
         />
         <Button title="Path"
-          onPress={() => nodejs.channel.send('path')}
+          onPress={() => this.get('path')}
         />
+        <Text>{JSON.stringify(this.state.msg)}</Text>
       </View>
     );
   }

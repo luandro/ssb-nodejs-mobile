@@ -1,10 +1,12 @@
-const rn_bridge = require('rn-bridge')
+const express = require('express')
 const ssbKeys = require('ssb-keys')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const mkdirp = require('mkdirp')
 const manifest = require('./manifest')
+
+const app = express()
 
 // Hack until appDataDir plugin comes out
 const  writablePath = path.join(__dirname, '..');
@@ -21,13 +23,12 @@ config.path = ssbPath;
 config.keys = keys;
 config.manifest = manifest;
 
-rn_bridge.channel.on('message', (msg) => {
-  if( msg === 'keys') {
-    rn_bridge.channel.send(config.keys)
-  }
-  if( msg === 'path') {
-    rn_bridge.channel.send(config.path)
-  }
+app.get('/keys', (req, res) => {
+  res.json(config.keys)
 })
 
-rn_bridge.channel.send("Node was initialized.")
+app.get('/path', (req, res) => {
+  res.json(config.path)
+})
+
+app.listen(3000)
