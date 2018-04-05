@@ -2,7 +2,7 @@
   "name": "nodejs-project",
   "version": "1.0.0",
   "description": "",
-  "main": "compiled_index.js",
+  "main": "index.js",
   "keywords": [],
   "author": "",
   "license": "ISC",

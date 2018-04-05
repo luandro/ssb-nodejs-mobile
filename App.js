@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import nodejs from 'nodejs-mobile-react-native';
 
-const uri = 'http://localhost:4000'
+const uri = 'http://localhost:3000'
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -27,7 +27,7 @@ export default class App extends Component<Props> {
     msg: null
   }
   componentWillMount() {
-    nodejs.start('compiled_index.js');
+    nodejs.start('index.js');
   }
   get = (i) => {
     fetch(`${uri}/${i}`)
