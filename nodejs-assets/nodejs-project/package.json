@@ -6,11 +6,17 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "scripts": {
+    "prepare": "patch-package"
+  },
   "dependencies": {
     "express": "^4.16.3",
-    "leveldown": "^3.0.0",
     "mkdirp": "^0.5.1",
+    "scuttlebot": "github:luandro/scuttlebot",
     "ssb-config": "^2.2.0",
     "ssb-keys": "^7.0.14"
+  },
+  "devDependencies": {
+    "patch-package": "^5.1.1"
   }
 }

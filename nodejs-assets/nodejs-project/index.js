@@ -5,10 +5,6 @@ const os = require('os')
 const path = require('path')
 const mkdirp = require('mkdirp')
 const manifest = require('./manifest')
-const level = require('leveldown')
-
-console.log('LEVEL', level)
-
 const app = express()
 
 // Hack until appDataDir plugin comes out
@@ -25,6 +21,12 @@ const config = require('ssb-config/inject')();
 config.path = ssbPath;
 config.keys = keys;
 config.manifest = manifest;
+
+// require('scuttlebot/index')
+//   .use(require('scuttlebot/plugins/plugins'))
+//   .use(require('scuttlebot/plugins/master'))
+//   .use(require('scuttlebot/plugins/replicate'))
+//   .call(null, config)
 
 app.get('/keys', (req, res) => {
   res.json(config.keys)

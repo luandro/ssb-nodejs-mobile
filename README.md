@@ -17,6 +17,12 @@ npm i
 
 Than open the project's `./android` directory in Android Studio in order to download all the necessary dependencies.
 
-`npm run dev` to start development.
+Enter the NodeJS project directory and run `npm install` and `npm run prepare` in order to patch necessary packages:
+- [leveldown](https://github.com/Level/leveldown/pull/446)
+
+`npm run dev` to start Android development and logging.
 
 Use `adb logcat -s "NODEJS-MOBILE"` to log NodeJS application.
+
+## Requires
+- [scuttlebot fork](https://github.com/luandro/scuttlebot)

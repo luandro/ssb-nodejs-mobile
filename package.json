@@ -5,6 +5,8 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "build": "./tools/build-nodejs",
+    "fork": "./tools/fork-module",
+    "unfork": "./tools/undo-fork",
     "node": "cd nodejs-assets/nodejs-project && node .",
     "clean": "adb uninstall com.scuttlebotmobile && cd android && ./gradlew clean",
     "log": "adb logcat -s 'NODEJS-MOBILE'",
