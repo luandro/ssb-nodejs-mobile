@@ -41,11 +41,8 @@ export default class App extends Component<Props> {
         <Text style={styles.welcome}>
           Welcome to Scuttlebot on NodeJS Mobile!
         </Text>
-        <Button title="Keys"
-          onPress={() => this.get('keys')}
-        />
-        <Button title="Path"
-          onPress={() => this.get('path')}
+        <Button title="Who am I"
+          onPress={() => this.get('whoami')}
         />
         <Text>{JSON.stringify(this.state.msg)}</Text>
       </View>

@@ -1,0 +1,901 @@
+patch-package
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/batch.js
++++ /dev/null
+@@ -1,294 +0,0 @@
+-var test = require('tape')
+-var level = require('level-test')()
+-
+-function all (db, cb) {
+-  var obj = {}, fin = false
+-
+-  function done (err) {
+-    if(fin) return
+-    fin = true
+-    cb(err, obj)
+-  }
+-
+-  db.createReadStream({end: '\xff\xff'})
+-    .on('data', function (ch) {
+-      obj[ch.key] = ch.value
+-    })
+-    .on('end', done)
+-    .on('error', done)
+-}
+-
+-var sublevel = require('../')
+-function sl(name) {
+-  return sublevel(level(name), {sep: "~"})
+-}
+-
+-
+-test('sublevel - batch', function (t) {
+-
+-  var base = sl('test-sublevel')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('B')
+-
+-
+-  var sum  = 0
+-
+-  a.batch([
+-    {key: 'a', value: 1, type: 'put'},
+-    {key: 'b', value: 2, type: 'put'},
+-    {key: 'c', value: 3, type: 'put'},
+-    {key: 'd', value: 4, type: 'put'},
+-    {key: 'e', value: 5, type: 'put'},
+-  ], function (err) {
+-    all(a, function (err, obj) {
+-      t.notOk(err)
+-      var keys = Object.keys(obj).join('')
+-      for(var k in obj) {
+-        sum += Number(obj[k])
+-      }
+-      t.equal(keys, 'abcde')
+-      t.equal(sum, 15)
+-      t.end()
+-    })
+-  })
+-
+-})
+-
+-test('sublevel - prefixed batches', function (t) {
+-
+-  var base = sl('test-sublevel2')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('B')
+-
+-  base.batch([
+-    {key: 'a', value: 1, type: 'put'},
+-    {key: 'b', value: 2, type: 'put', prefix: b},
+-    {key: 'c', value: 3, type: 'put'},
+-    {key: 'd', value: 4, type: 'put', prefix: a},
+-    {key: 'e', value: 5, type: 'put', prefix: base},
+-  ], function (err) {
+-    all(base, function (_, obj) {
+-      t.deepEqual(obj, {
+-        'a': '1',
+-        'c': '3',
+-        'e': '5',
+-        '~A~d': '4',
+-        '~B~b': '2'
+-      })
+-      console.log(obj)
+-      t.end()
+-    })
+-  })
+-})
+-
+-test('sublevel - prefixed batches on subsection', function (t) {
+-
+-  var base = sl('test-sublevel3')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('B')
+-
+-  a.batch([
+-    {key: 'a', value: 1, type: 'put', prefix: base},
+-    {key: 'b', value: 2, type: 'put', prefix: b},
+-    {key: 'c', value: 3, type: 'put', prefix: base},
+-    {key: 'd', value: 4, type: 'put'},
+-    {key: 'e', value: 5, type: 'put', prefix: base},
+-  ], function (err) {
+-    all(base, function (_, obj) {
+-      t.deepEqual(obj, {
+-        'a': '1',
+-        'c': '3',
+-        'e': '5',
+-        '~A~d': '4',
+-        '~B~b': '2'
+-      })
+-      t.end()
+-    })
+-  })
+-})
+-
+-
+-test('sublevel - prefixed batches on subsection - strings', function (t) {
+-
+-  var base = sl('test-sublevel4')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('B')
+-  var b_c    = b.sublevel('C')
+-
+-  base.batch([
+-    {key: 'a', value: 1, type: 'put'},
+-    {key: 'b', value: 2, type: 'put', prefix: b.prefix()},
+-    {key: 'c', value: 3, type: 'put'},
+-    {key: 'd', value: 4, type: 'put', prefix: a.prefix()},
+-    {key: 'e', value: 5, type: 'put'},
+-    {key: 'f', value: 6, type: 'put', prefix: b_c.prefix()},
+-  ], function (err) {
+-    all(base, function (_, obj) {
+-      t.deepEqual(obj, {
+-        'a': '1',
+-        'c': '3',
+-        'e': '5',
+-        '~A~d': '4',
+-        '~B~b': '2',
+-        '~B~~C~f': '6'
+-      })
+-      console.log(obj)
+-      t.end()
+-    })
+-  })
+-})
+-
+-test('sublevel - batch - chained', function (t) {
+-
+-  var base = sl('test-sublevel5')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('B')
+-
+-
+-  var sum  = 0
+-
+-  a.batch()
+-    .put('a', 1)
+-    .put('b', 2)
+-    .put('c', 3)
+-    .put('d', 4)
+-    .put('e', 5)
+-  .write(function (err) {
+-    all(a, function (err, obj) {
+-      t.notOk(err)
+-      var keys = Object.keys(obj).join('')
+-      for(var k in obj) {
+-        sum += Number(obj[k])
+-      }
+-      t.equal(keys, 'abcde')
+-      t.equal(sum, 15)
+-      t.end()
+-    })
+-  })
+-
+-})
+-
+-test('sublevel - prefixed batches - chained', function (t) {
+-
+-  var base = sl('test-sublevel6')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('B')
+-
+-  base.batch()
+-    .put('a', 1)
+-    .put('b', 2, {prefix: b})
+-    .put('c', 3)
+-    .put('d', 4, {prefix: a})
+-    .put('e', 5, {prefix: base})
+-  .write(function (err) {
+-    all(base, function (_, obj) {
+-      t.deepEqual(obj, {
+-        'a': '1',
+-        'c': '3',
+-        'e': '5',
+-        '~A~d': '4',
+-        '~B~b': '2'
+-      })
+-      console.log(obj)
+-      t.end()
+-    })
+-  })
+-})
+-
+-test('sublevel - prefixed batches on subsection - chained', function (t) {
+-
+-  var base = sl('test-sublevel7')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('B')
+-
+-  a.batch()
+-    .put('a', 1, {prefix: base})
+-    .put('b', 2, {prefix: b})
+-    .put('c', 3, {prefix: base})
+-    .put('d', 4)
+-    .put('e', 5, {prefix: base})
+-  .write(function (err) {
+-    all(base, function (_, obj) {
+-      t.deepEqual(obj, {
+-        'a': '1',
+-        'c': '3',
+-        'e': '5',
+-        '~A~d': '4',
+-        '~B~b': '2'
+-      })
+-      t.end()
+-    })
+-  })
+-})
+-
+-
+-test('sublevel - prefixed batches on subsection - strings - chained', function (t) {
+-
+-  var base = sl('test-sublevel8')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('B')
+-  var b_c    = b.sublevel('C')
+-
+-  base.batch()
+-    .put('a', 1)
+-    .put('b', 2, {prefix: b.prefix()})
+-    .put('c', 3)
+-    .put('d', 4, {prefix: a.prefix()})
+-    .put('e', 5)
+-    .put('f', 6, {prefix: b_c.prefix()})
+-  .write(function (err) {
+-    all(base, function (_, obj) {
+-      t.deepEqual(obj, {
+-        'a': '1',
+-        'c': '3',
+-        'e': '5',
+-        '~A~d': '4',
+-        '~B~b': '2',
+-        '~B~~C~f': '6'
+-      })
+-      console.log(obj)
+-      t.end()
+-    })
+-  })
+-})
+-
+-test('sublevel - delete - chained', function(t) {
+-  var base = sl('test-sublevel9')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('B')
+-
+-  var sum  = 0
+-
+-  a.batch()
+-    .put('a', 1)
+-    .put('b', 2)
+-    .put('c', 3)
+-    .put('d', 4)
+-    .put('e', 5)
+-  .write()
+-
+-  a.batch()
+-    .del('c')
+-    .del('e')
+-  .write(function (err) {
+-    all(a, function (err, obj) {
+-      t.notOk(err)
+-      var keys = Object.keys(obj).join('')
+-      for(var k in obj) {
+-        sum += Number(obj[k])
+-      }
+-      t.equal(keys, 'abd')
+-      t.equal(sum, 7)
+-      t.end()
+-    })
+-  })
+-})
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/hook.js
++++ /dev/null
+@@ -1,55 +0,0 @@
+-var level = require('level-test')()
+-var Sublevel = require('../')
+-
+-function sl (name) {
+-  return Sublevel(level(name), {sep: '~'}) 
+-}
+-
+-require('tape')('sublevel', function (t) {
+-
+-  var base = sl('test-sublevel')
+-
+-  var a    = base.sublevel('A')
+-  var b    = base.sublevel('SEQ')
+-
+-  var i = 0
+-
+-  function all(db, cb) {
+-    var o = {}
+-    db.createReadStream({end: '\xff\xff'}).on('data', function (data) {
+-      o[data.key.toString()] = data.value.toString()
+-    })
+-    .on('end', function () {
+-      cb(null, o)
+-    })
+-    .on('error', cb)
+-  }
+-
+-  a.pre(function (ch, add) {
+-    console.log(ch)
+-    add({key: i++, value: ch.key, type: 'put'}, b)
+-  })
+-
+-  var n = 3, _a, _b, _c
+-
+-  a.put('a', _a ='AAA_'+Math.random(), next)
+-  a.put('b', _b = 'BBB_'+Math.random(), next)
+-  a.put('c', _c = 'CCC_'+Math.random(), next)
+-
+-  function next () {
+-    if(--n) return
+-
+-    all(base, function (err, obj) {
+-      console.log(obj)
+-      t.deepEqual(obj, 
+-        { '~A~a': _a,
+-          '~A~b': _b,
+-          '~A~c': _c,
+-          '~SEQ~0': 'a',
+-          '~SEQ~1': 'b',
+-          '~SEQ~2': 'c' })
+-      t.end()
+-    })
+-  }
+-
+-})
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/limit.js
++++ /dev/null
+@@ -1,123 +0,0 @@
+-var test = require('tape')
+-
+-function all (db, range, cb) {
+-  var o = {}
+-  db.createReadStream(range)
+-    .on('data', function (data) {
+-      o[data.key] = data.value
+-    })
+-    .on('end', function () {
+-      cb(null, o)
+-    })
+-}
+-
+-function makeTest(db, name) {
+-
+-  test(name, function (t) {
+-
+-    t.plan(19)
+-
+-    var docs = {
+-      a: 'apple',
+-      b: 'banana',
+-      c: 'cherry',
+-      d: 'durian',
+-      e: 'elder-berry'
+-    }
+-
+-    function limit(a, b) {
+-      t.deepEqual(a, b)
+-      t.equal(JSON.stringify(a), JSON.stringify(b))
+-    }
+-
+-    db.batch(Object.keys(docs).map(function (key) {
+-      console.log(key, docs[key])
+-      return {key: key, value: docs[key], type: 'put'}
+-    }), function (err) {
+-      t.notOk(err) 
+-
+-      all(db, {limit: -1}, function (err, all) {
+-        limit(all, docs)
+-      })
+-
+-      all(db, {limit: 2, min: 'a~'}, function (err, all) {
+-        limit(all, {
+-          b: 'banana',
+-          c: 'cherry'
+-        })
+-      })
+-
+-      all(db, {limit: 3, min: 'b'}, function (err, all) {
+-        limit(all, {
+-          b: 'banana',
+-          c: 'cherry',
+-          d: 'durian'
+-        })
+-      })
+-
+-
+-      all(db, {limit: 2, min: 'a~', reverse: true}, function (err, all) {
+-        limit(all, {
+-          e: 'elder-berry',
+-          d: 'durian'
+-        })
+-      })
+-
+-      all(db, {limit: 1, min: 'c~', reverse: true}, function (err, all) {
+-        console.log(all)
+-        limit(all, {
+-          e: 'elder-berry'
+-        })
+-      })
+-
+-      all(db, {limit: 1, min: 'c~', max: 'd~'}, function (err, all) {
+-        console.log(all)
+-        limit(all, {
+-          d: 'durian',
+-        })
+-      })
+-
+-      all(db, {limit: 3, min: 'a~'}, function (err, all) {
+-        limit(all, {
+-          b: 'banana',
+-          c: 'cherry',
+-          d: 'durian'
+-        })
+-      })
+-
+-      all(db, {limit: 1, min: 'c~'}, function (err, all) {
+-        console.log('d, e', all)
+-        limit(all, {
+-          d: 'durian'
+-        })
+-      })
+-
+-      all(db, {limit: 2, min: 'c~', max: 'd~', reverse: true}, function (err, all) {
+-        console.log(all)
+-        limit(all, {
+-          d: 'durian',
+-        })
+-      })
+-    })
+-  })
+-}
+-
+-
+-var levelup = require('level-test')()
+-
+-var base = require('../')(levelup('test-sublevel-limit'))
+-
+-var A = base.sublevel('A')
+-makeTest(base, 'simple')
+-
+-makeTest(A, 'sublevel')
+-
+-makeTest(base, 'simple, again')
+-
+-var A_B = A.sublevel('B')
+-makeTest(A_B, 'sublevel2')
+-
+-makeTest(A, 'sublevel, again')
+-
+-makeTest(base, 'simple, again 2')
+-
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/mixed-value-encodings-per-action-del.js
++++ /dev/null
+@@ -1,39 +0,0 @@
+-var levelup = require('level-test')()
+-var base = require('../')(levelup('test-mixed-value-encodings-per-del'))
+-
+-var test = require('tape')
+-
+-test('subsections support mixed encodings per del', function (t) {
+-  t.plan(6)
+-
+-  var foo = base.sublevel('foo')
+-  var bar = base.sublevel('bar')
+-
+-  foo.put('foo1', 'foo1-value', { valueEncoding: 'utf8' }, function () {
+-    bar.put('bar1', { obj: 'ect' }, { valueEncoding: 'json' }, function () {
+-
+-      foo.get('foo1', { valueEncoding: 'utf8' }, function (err, value) {
+-        t.notOk(err, 'getting string value by key has no error')
+-        t.equal(value, 'foo1-value', 'and returns value for that key')
+-
+-        foo.del('foo1', { valueEncoding: 'utf8' }, function (err, value) {
+-          foo.get('foo1', { valueEncoding: 'utf8' }, function (err, value) {
+-            t.equal(err.name, 'NotFoundError', 'properly deletes utf8 encoded value')
+-          })
+-        })
+-      })
+-
+-      bar.get('bar1', { valueEncoding: 'json' }, function (err, value) {
+-        t.notOk(err, 'getting object value by key has no error')
+-        t.equal(value.obj, 'ect', 'and returns value for that key')
+-
+-        bar.del('bar1', { valueEncoding: 'json' }, function (err, value) {
+-          bar.get('bar1', { valueEncoding: 'json' }, function (err, value) {
+-            t.equal(err.name, 'NotFoundError', 'properly deletes json encoded value')
+-          })
+-        })
+-      })
+-
+-    })
+-  })
+-})
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/mixed-value-encodings-per-sub-del.js
++++ /dev/null
+@@ -1,39 +0,0 @@
+-var levelup = require('level-test')()
+-var base = require('../')(levelup('test-mixed-value-encodings-per-sub-del'))
+-
+-var test = require('tape')
+-
+-test('subsections support mixed encodings per sub with del', function (t) {
+-  t.plan(6)
+-
+-  var foo = base.sublevel('foo', { valueEncoding: 'utf8' })
+-  var bar = base.sublevel('bar', { valueEncoding: 'json' })
+-
+-  foo.put('foo1', 'foo1-value', function () {
+-    bar.put('bar1', { obj: 'ect' }, function () {
+-
+-      foo.get('foo1', function (err, value) {
+-        t.notOk(err, 'getting string value by key has no error')
+-        t.equal(value, 'foo1-value', 'and returns value for that key')
+-
+-        foo.del('foo1', function (err, value) {
+-          foo.get('foo1', { valueEncoding: 'utf8' }, function (err, value) {
+-            t.equal(err.name, 'NotFoundError', 'properly deletes utf8 encoded value')
+-          })
+-        })
+-      })
+-
+-      bar.get('bar1', function (err, value) {
+-        t.notOk(err, 'getting object value by key has no error')
+-        t.equal(value.obj, 'ect', 'and returns value for that key')
+-
+-        bar.del('bar1', function (err, value) {
+-          bar.get('bar1', { valueEncoding: 'json' }, function (err, value) {
+-            t.equal(err.name, 'NotFoundError', 'properly deletes json encoded value')
+-          })
+-        })
+-      })
+-
+-    })
+-  })
+-})
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/mixed-value-encodings-writeStream-per-sub.js
++++ /dev/null
+@@ -1,36 +0,0 @@
+-var levelup = require('level-test')()
+-var base = require('../')(levelup('test-mixed-value-encodings-writeStream-sub'))
+-
+-var test = require('tape')
+-
+-test('subsections support mixed encodings per sub for write stream', function (t) {
+-  t.plan(6)
+-
+-  var foo = base.sublevel('foo', { valueEncoding: 'utf8' })
+-  var foos = foo.createWriteStream()
+-
+-  foos.write({ key: 'foo1', value: 'foo1-value' })
+-  foos.end()
+-  foos.on('close', function (err) {
+-    t.notOk(err, 'writing utf8 encoded stream has no error')
+-
+-    foo.get('foo1', { valueEncoding: 'utf8' }, function (err, value) {
+-      t.notOk(err, 'getting string value by key has no error')
+-      t.equal(value, 'foo1-value', 'and returns value for that key')
+-    })
+-  })
+-
+-  var bar = base.sublevel('bar', { valueEncoding: 'json' })
+-  var bars = bar.createWriteStream()
+-
+-  bars.write({ key: 'bar1', value: { obj: 'ect' } })
+-  bars.end()
+-  bars.on('close', function (err) {
+-    t.notOk(err, 'writing utf8 encoded stream has no error')
+-
+-    bar.get('bar1', { valueEncoding: 'json' }, function (err, value) {
+-      t.notOk(err, 'getting object value by key has no error')
+-      t.equal(value.obj, 'ect', 'and returns value for that key')
+-    })
+-  })
+-})
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/mixed-value-encodings-writeStream-per-write.js
++++ /dev/null
+@@ -1,36 +0,0 @@
+-var levelup = require('level-test')()
+-var base = require('../')(levelup('test-mixed-value-encodings-writeStream-write'))
+-
+-var test = require('tape')
+-
+-test('subsections support mixed encodings per write for write stream', function (t) {
+-  t.plan(6)
+-
+-  var foo = base.sublevel('foo')
+-  var foos = foo.createWriteStream()
+-
+-  foos.write({ key: 'foo1', value: 'foo1-value' }, { valueEncoding: 'utf8' })
+-  foos.end()
+-  foos.on('close', function (err) {
+-    t.notOk(err, 'writing utf8 encoded stream has no error')
+-
+-    foo.get('foo1', { valueEncoding: 'utf8' }, function (err, value) {
+-      t.notOk(err, 'getting string value by key has no error')
+-      t.equal(value, 'foo1-value', 'and returns value for that key')
+-    })
+-  })
+-
+-  var bar = base.sublevel('bar')
+-  var bars = bar.createWriteStream()
+-
+-  bars.write({ key: 'bar1', value: { obj: 'ect' }, valueEncoding: 'json' })
+-  bars.end()
+-  bars.on('close', function (err) {
+-    t.notOk(err, 'writing utf8 encoded stream has no error')
+-
+-    bar.get('bar1', { valueEncoding: 'json' }, function (err, value) {
+-      t.notOk(err, 'getting object value by key has no error')
+-      t.equal(value.obj, 'ect', 'and returns value for that key')
+-    })
+-  })
+-})
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/posthook-ranges.js
++++ /dev/null
+@@ -1,63 +0,0 @@
+-var test = require('tape')
+-var level = require('level-test')()
+-var SubLevel = require('../')
+-
+-test('sublevel - batch', function (t) {
+-
+-  var base = SubLevel(level('test-sublevel'))
+-
+-  var lc = [], uc = []
+-
+-  base.post(/^[a-z]/, function (data) {
+-    lc.push(data.key)
+-  })
+-
+-  base.post(/^[A-Z]/, function (data) {
+-   uc.push(data.key)
+-  })
+-  var n = 4
+-
+-  base.put('thing',    Math.random(), next)
+-  base.put('Thing',    Math.random(), next)
+-  base.put('lalala',   Math.random(), next)
+-  base.put('WHATEVER', Math.random(), next)
+-
+-  function next () {
+-    if(--n) return
+-    t.deepEqual(lc.sort(), ['lalala', 'thing'])
+-    t.deepEqual(uc.sort(), ['Thing', 'WHATEVER'])
+-    t.end()
+-  }
+-})
+-
+-
+-test('sublevel - post hook rang on sublevel', function (t) {
+-
+-  var db = SubLevel(level('test-sublevel2'))
+-  var base = db.sublevel('stuff')
+-
+-  var lc = [], uc = []
+-
+-  base.post(/^[a-z]/, function (data) {
+-    console.log('POST', data)
+-    lc.push(data.key)
+-  })
+-
+-  base.post(/^[A-Z]/, function (data) {
+-   uc.push(data.key)
+-  })
+-  var n = 4
+-
+-  base.put('thing',    Math.random(), next)
+-  base.put('Thing',    Math.random(), next)
+-  base.put('lalala',   Math.random(), next)
+-  base.put('WHATEVER', Math.random(), next)
+-
+-  function next () {
+-    if(--n) return
+-    t.deepEqual(lc.sort(), ['lalala', 'thing'])
+-    t.deepEqual(uc.sort(), ['Thing', 'WHATEVER'])
+-    t.end()
+-  }
+-})
+-
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/prehook-batch.js
++++ /dev/null
+@@ -1,72 +0,0 @@
+-var level = require('level-test')()
+-var sublevel = require('../')
+-var test = require('tape')
+-
+-function find(ary, test) {
+-  for(var i = 0; i < ary.length; i++) {
+-    if(test(ary[i], i, ary)) return ary[i]
+-  }
+-}
+-
+-test('prehook can introspect whole batch', function (t) {
+-
+-  var db    = sublevel(level('introspect'))
+-  var logDb = db.sublevel('log')
+-
+-  var didHaveLog = 0, didNotHaveLog = 0
+-
+-  var prefix = logDb.prefix()
+-
+-  db.pre(function (op, add, batch) {
+-    if(find(batch, function (_op) {
+-      return op.key == _op.value && _op.key.indexOf(prefix) === 0
+-    }))
+-      didHaveLog ++
+-    else {
+-      add({key: Date.now(), value: op.key, type: 'put', prefix: logDb})
+-      didNotHaveLog ++
+-    }
+-  })
+-
+-  db.batch([
+-    {key: 'foo', value: new Date(), type: 'put'},
+-    {key: Date.now(), value: 'foo', type: 'put', prefix: logDb},
+-  ], function (err) {
+-    if(err) console.error(err.stack)
+-    t.notOk(err, 'save did not error')
+-    t.ok(didHaveLog)
+-    t.end()
+-  })
+-
+-})
+-
+-test('prehook can introspect whole batch - when sublevel', function (t) {
+-
+-  var db    = sublevel(level('introspect2')).sublevel('main')
+-  var logDb = db.sublevel('log')
+-
+-  var didHaveLog = 0, didNotHaveLog = 0
+-  var prefix = logDb.prefix()
+-
+-  db.pre(function (op, add, batch) {
+-    if(find(batch, function (_op) {
+-      return op.key == _op.value && _op.key.indexOf(prefix) === 0
+-    }))
+-      didHaveLog ++
+-    else {
+-      add({key: Date.now(), value: op.key, type: 'put', prefix: logDb})
+-      didNotHaveLog ++
+-    }
+-  })
+-
+-  db.batch([
+-    {key: 'foo', value: new Date(), type: 'put'},
+-    {key: Date.now(), value: 'foo', type: 'put', prefix: logDb},
+-  ], function (err) {
+-    if(err) console.error(err.stack)
+-    t.notOk(err, 'save did not error')
+-    t.ok(didHaveLog)
+-    t.end()
+-  })
+-
+-})
+deleted file mode 100644
+--- a/node_modules/level-sublevel/_test/prehook-insert.js
++++ /dev/null
+@@ -1,103 +0,0 @@
+-var Sublevel = require('../')
+-var level = require('level-test')()
+-
+-var tape = require('tape')
+-
+-tape('insert in prehook', function (t) {
+-
+-  var base = Sublevel(level('test-sublevel'))
+-
+-  Sublevel(base, { sep: '~' })
+-
+-  var a   = base.sublevel('A')
+-  var b   = base.sublevel('B')
+-
+-  var as = {}
+-  var aas = {}
+-
+-  a.pre(function (op, add) {
+-    as[op.key] = op.value
+-    console.log('A   :', op)
+-    add({
+-      key: op.key, value: op.value, 
+-      type: 'put', prefix: b.prefix()
+-    })
+-  })
+-
+-  var val = 'random_' + Math.random()
+-  a.put('foo', val, function () {
+-
+-    b.get('foo', function (err, _val) {
+-      t.equal(_val, val)
+-      t.end()
+-    })
+-  })
+-
+-})
+-
+-tape('insert in prehook 2', function (t) {
+-
+-  var base = Sublevel(level('test-sublevel2'))
+-
+-  Sublevel(base, '~')
+-
+-  var a   = base.sublevel('A')
+-  var b   = base.sublevel('B')
+-
+-  var as = {}
+-  var aas = {}
+-
+-  a.pre(function (op, add) {
+-    as[op.key] = op.value
+-    console.log('A   :', op)
+-    add({
+-      key: op.key, value: op.value, 
+-      type: 'put', prefix: b
+-    })
+-  })
+-
+-  var val = 'random_' + Math.random()
+-  a.put('foo', val, function () {
+-
+-    b.get('foo', function (err, _val) {
+-      t.equal(_val, val)
+-      t.end()
+-    })
+-  })
+-
+-})
+-
+-
+-tape('insert in prehook - encodings', function (t) {
+-
+-  var base = Sublevel(level('test-sublevel3', {valueEncoding: 'json'}))
+-
+-  Sublevel(base, '~')
+-
+-  var b = base.sublevel('B', {valueEncoding: 'utf8'})
+-
+-  var as = {}
+-//  var aas = {}
+-
+-  base.pre(function (op, add) {
+-    as[op.key] = op.value
+-    console.log('A   :', op)
+-    add({
+-      key: op.key, value: JSON.stringify({value: op.value}), 
+-      type: 'put', prefix: b//, valueEncoding: 'utf8'
+-    })
+-  })
+-
+-  var val = {'random': + Math.random()}
+-  base.put('foo', val, function (err) {
+-    if(err) throw err
+-    b.get('foo', function (err, _val) {
+-      console.log('GET', _val, val)
+-      t.deepEqual(JSON.parse(_val), {value: val})
+-      t.end()
+-    })
+-  })
+-
+-})
+-
+-
