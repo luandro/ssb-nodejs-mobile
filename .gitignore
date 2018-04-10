@@ -2,7 +2,7 @@
 #
 .DS_Store
 .history/
-
+nodejs-assets/.ssb/
 # Xcode
 #
 ./nodejs-assets/nodejs-project/node_modules/
