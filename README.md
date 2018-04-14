@@ -4,7 +4,7 @@ Experimentation for running [scuttlebot](https://github.com/ssbc/scuttlebot) wit
 
 ## Goals
 
-- proof-of-concept Android :check:
+- proof-of-concept Android :white_check_mark:
 - proof-of-concept iOS :x:
 - support more native modules (sodium, leveldown, utp-native) :x:
 
