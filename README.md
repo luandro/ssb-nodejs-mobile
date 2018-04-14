@@ -24,5 +24,8 @@ Enter the NodeJS project directory and run `npm install` and `npm run prepare` i
 
 Use `adb logcat -s "NODEJS-MOBILE"` to log NodeJS application.
 
-## Requires
-- [scuttlebot fork](https://github.com/luandro/scuttlebot)
+## Fixes that made this possible
+- [Scuttlebot fork](https://github.com/luandro/scuttlebot)
+- [NodeJS Mobile - name collision error](https://github.com/janeasystems/nodejs-mobile/issues/34#issuecomment-358142287)
+- [NodeJS Mobile - folders starting with underscore not copied on Android](https://github.com/janeasystems/nodejs-mobile/issues/60#issuecomment-381288106)
+- [Leveldown - compiling for Android x86](https://github.com/Level/leveldown/pull/446)
