@@ -3,10 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "prepare": "patch-package",
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "build": "./tools/build-nodejs",
-    "fork": "./tools/fork-module",
-    "unfork": "./tools/undo-fork",
+    "install-node": "cd nodejs-assets/nodejs-project && npm i",
     "node": "cd nodejs-assets/nodejs-project && node .",
     "clean": "adb uninstall com.scuttlebotmobile && cd android && ./gradlew clean",
     "log": "adb logcat -s 'NODEJS-MOBILE'",
@@ -16,7 +15,6 @@
   },
   "dependencies": {
     "nodejs-mobile-react-native": "^0.1.4",
-    "noderify": "^3.0.2",
     "react": "^16.3.0-alpha.0",
     "react-native": "0.55.0"
   },
@@ -24,6 +22,7 @@
     "babel-jest": "22.4.3",
     "babel-preset-react-native": "4.0.0",
     "jest": "22.4.3",
+    "patch-package": "^5.1.1",
     "react-test-renderer": "^16.3.0-alpha.0"
   },
   "jest": {

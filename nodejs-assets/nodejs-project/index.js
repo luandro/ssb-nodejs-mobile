@@ -10,7 +10,6 @@ const app = express()
 
 // Hack until appDataDir plugin comes out
 const  writablePath = path.join(__dirname, '..');
-// const ssbPath = path.resolve(os.homedir(), '.ssb');
 const ssbPath = path.resolve(writablePath, '.ssb');
 
 if (!fs.existsSync(ssbPath)) {
@@ -57,11 +56,4 @@ startSsbServer()
     
     app.listen(3000)
   }))
-
-// require('scuttlebot/index')
-//   .use(require('scuttlebot/plugins/plugins'))
-//   .use(require('scuttlebot/plugins/master'))
-//   .use(require('scuttlebot/plugins/replicate'))
-//   .call(null, config)
-
-
+  
