@@ -70,7 +70,6 @@ buck-out/
 # Generated Code
 #
 /lib/
-/nodejs-assets
 /android/app/src/main/res/raw/rnnodebundle
 /android/app/src/main/assets/worker.bundle*
 
