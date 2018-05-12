@@ -9,7 +9,7 @@
   "dependencies": {
     "express": "^4.16.3",
     "mkdirp": "^0.5.1",
-    "scuttlebot": "git://github.com/luandro/scuttlebot-mobile",
+    "scuttlebot": "git://github.com/luandro/scuttlebot",
     "ssb-about": "^0.1.2",
     "ssb-backlinks": "^0.7.1",
     "ssb-blobs": "^1.1.5",
