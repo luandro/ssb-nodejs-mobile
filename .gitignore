@@ -2,10 +2,8 @@
 #
 .DS_Store
 .history/
-nodejs-assets/.ssb/
 # Xcode
 #
-./nodejs-assets/nodejs-project/node_modules/
 build/
 *.pbxuser
 !default.pbxuser
@@ -31,6 +29,21 @@ build/
 .gradle
 local.properties
 *.iml
+android/.project
+android/app/.classpath
+android/app/.project
+android/app/.settings/org.eclipse.buildship.core.prefs
+android/.settings/org.eclipse.buildship.core.prefs
+
+# End-to-end tests
+#
+/e2e/.calabash_settings
+/e2e/test_servers
+/e2e/screenshot*.png
+
+# Visual Studio Code
+#
+.vscode
 
 # node.js
 #
@@ -54,5 +67,13 @@ buck-out/
 */fastlane/Preview.html
 */fastlane/screenshots
 
-# Bundle artifact
-*.jsbundle
+# Generated Code
+#
+/lib/
+/nodejs-assets
+/android/app/src/main/res/raw/rnnodebundle
+/android/app/src/main/assets/worker.bundle*
+
+# Misc
+#
+/gitignored/
