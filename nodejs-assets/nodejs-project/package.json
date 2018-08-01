@@ -10,6 +10,7 @@
     "express": "^4.16.3",
     "mkdirp": "^0.5.1",
     "scuttlebot": "git://github.com/luandro/scuttlebot",
+    "sodium-native-prebuilds-nodejs-mobile": "^2.1.6-8",
     "ssb-about": "^0.1.2",
     "ssb-backlinks": "^0.7.1",
     "ssb-blobs": "^1.1.5",
