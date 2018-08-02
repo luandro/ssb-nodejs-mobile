@@ -14,17 +14,11 @@ import nodejs from 'nodejs-mobile-react-native';
 
 const uri = 'http://localhost:3000'
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
-
 type Props = {};
 export default class App extends Component<Props> {
   state = {
-    msg: null
+    whoami: null,
+    path: null,
   }
   componentWillMount() {
     nodejs.start('index.js');
@@ -32,7 +26,7 @@ export default class App extends Component<Props> {
   get = (i) => {
     fetch(`${uri}/${i}`)
       .then(res => res.json())
-      .then(data => this.setState({ msg: data }))
+      .then(data => this.setState({ [i]: data }))
       .catch(err => alert(err))
   }
   render() {
@@ -44,7 +38,11 @@ export default class App extends Component<Props> {
         <Button title="Who am I"
           onPress={() => this.get('whoami')}
         />
-        <Text>{JSON.stringify(this.state.msg)}</Text>
+        <Text>{JSON.stringify(this.state.whoami)}</Text>
+        <Button title="Path"
+          onPress={() => this.get('path')}
+        />
+        <Text>{JSON.stringify(this.state.path)}</Text>
       </View>
     );
   }
@@ -61,10 +59,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   },
 });
